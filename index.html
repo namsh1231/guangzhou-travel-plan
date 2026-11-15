@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>광저우 여행 플래너</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@700&display=swap">
+<style>
+:root{--bg:#eaf1ed;--card:#fff;--ink:#14302a;--mute:#6b7f78;--line:#d3e0da;--acc:#1b7a61;--acc-ink:#fff;--hi:#f0b429;--inp:#f6faf8;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1d19;--card:#172823;--ink:#e3f0eb;--mute:#8fa8a0;--line:#26403a;--acc:#3fc09f;--acc-ink:#07211b;--inp:#10201c;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f1d19;--card:#172823;--ink:#e3f0eb;--mute:#8fa8a0;--line:#26403a;--acc:#3fc09f;--acc-ink:#07211b;--inp:#10201c;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;min-height:100%}
+.wrap{max-width:1080px;margin:0 auto;padding:16px}
+h1{font-family:"Gowun Batang",Georgia,serif;font-size:30px;margin:8px 0 2px;letter-spacing:-.5px}
+h2{font-size:16px;margin:0 0 10px}
+.sub{color:var(--mute);margin:0 0 14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.row>*{flex:1 1 130px;min-width:0}
+input,select,textarea,button{font:inherit;color:var(--ink)}
+input,select,textarea{background:var(--inp);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%}
+textarea{resize:vertical;min-height:54px}
+button{cursor:pointer;border:1px solid var(--line);background:var(--card);border-radius:8px;padding:8px 12px}
+button.p{background:var(--acc);color:var(--acc-ink);border-color:var(--acc);font-weight:600}
+button.g{border:0;background:none;color:var(--mute);padding:4px 8px}
+:focus-visible{outline:2px solid var(--hi);outline-offset:2px}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:6px}
+.tab{flex:0 0 auto;text-align:center;line-height:1.25;padding:8px 12px;border-radius:10px;border:1px solid var(--line);background:var(--card)}
+.tab small{display:block;color:var(--mute)}
+.tab.on{background:var(--acc);color:var(--acc-ink);border-color:var(--acc)}
+.tab.on small{color:inherit;opacity:.85}
+.grid{display:grid;grid-template-columns:1fr;gap:14px}
+.board{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;margin-bottom:14px}
+.board .card{margin:0}
+@media(min-width:860px){.board{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"s m" "f m" "h m";grid-template-rows:auto auto 1fr;align-items:start}.c-s{grid-area:s}.c-m{grid-area:m;position:sticky;top:12px}.c-f{grid-area:f}.c-h{grid-area:h}}
+.item{border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:10px;background:var(--card)}
+.item .top{display:flex;gap:8px;align-items:center}
+.item .top input[type=time]{flex:0 0 108px}
+.pin{flex:0 0 auto;width:24px;height:24px;border-radius:50%;background:var(--hi);color:#2b2100;font-weight:700;font-size:12px;display:grid;place-items:center}
+.item .more{display:grid;gap:6px;margin-top:8px}
+.photos{display:flex;gap:6px;flex-wrap:wrap}
+.photos div{position:relative}
+.photos img{height:84px;border-radius:8px;display:block}
+.photos .x{position:absolute;top:2px;right:2px;background:#000a;color:#fff;border:0;border-radius:50%;width:20px;height:20px;padding:0;line-height:20px}
+.acts{display:flex;gap:4px;justify-content:flex-end;flex-wrap:wrap}
+.chip{display:inline-block;background:var(--inp);border:1px solid var(--line);border-radius:999px;padding:2px 10px;margin:2px 4px 2px 0;font-size:13px}
+.map{width:100%;height:380px;border:1px solid var(--line);border-radius:12px;background:var(--inp)}
+.empty{color:var(--mute);padding:14px;text-align:center;border:1px dashed var(--line);border-radius:12px}
+a{color:var(--acc)}
+label.l{font-size:13px;color:var(--mute)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>광저우 여행 플래너</h1>
+  <p class="sub">날짜별 일정, 비행편, 숙소, 메모와 사진을 한곳에 모으고 구글맵 경로로 확인하세요.</p><p id="syncMsg" class="sub" style="font-size:13px;margin-top:-8px">이 브라우저에만 저장 중</p>
+
+  <div class="card">
+    <h2>여행 날짜</h2>
+    <div class="row">
+      <div><label class="l">출발일</label><input type="date" id="start"></div>
+      <div><label class="l">귀국일</label><input type="date" id="end"></div>
+    </div>
+  </div>
+
+  <div class="tabs" id="tabs"></div>
+
+  <div class="board">
+    <div class="card c-s">
+        <h2 id="dayTitle">일정</h2>
+        <div id="dayFlights"></div><div id="items"></div><div id="n_cands"></div><p class="sub" style="font-size:12px;margin:0 0 8px">팁: “지도에서 찾기”로 구글맵을 열어 장소를 고른 뒤, 주소창 링크를 일정의 링크 칸에 붙여넣으면 지도 위치가 자동 반영돼요.</p>
+        <div class="row">
+          <input id="n_time" type="time" style="flex:0 0 108px">
+          <input id="n_name" placeholder="가고 싶은 장소 (예: 캔톤타워, 사면섬)" style="flex:2 1 200px">
+          <button class="p" data-act="lookItem">지도에서 찾기</button><button data-act="addItem">그냥 추가</button>
+        </div>
+      </div>
+    <div class="card c-m">
+        <h2>오늘의 경로</h2>
+        <div class="row" style="margin-bottom:8px">
+          <select id="mode"><option value="transit">대중교통</option><option value="walking">도보</option><option value="driving">자동차</option></select>
+          <label style="flex:1 1 150px;display:flex;gap:6px;align-items:center"><input type="checkbox" id="roundtrip" style="width:auto" checked>숙소로 돌아오기</label>
+          <button data-act="openMaps">구글맵에서 열기</button>
+        </div>
+        <div id="chips"></div>
+        <div id="svgmap"></div><div id="legs"></div><iframe class="map" id="map" title="구글 지도 경로" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        <p class="sub" style="margin:8px 0 0;font-size:13px">지도가 비어 있으면 “구글맵에서 열기”를 눌러 주세요. 중국 내에서는 구글맵이 느리거나 제한될 수 있어 와이파이와 VPN을 미리 확인하세요.</p>
+      </div>
+    <div class="card c-f">
+      <h2>비행편</h2>
+      <div id="flights"></div>
+      <div class="row">
+        <select id="f_type"><option>가는 편</option><option>오는 편</option></select>
+        <input id="f_no" placeholder="편명 (예: KE867)">
+        <input id="f_from" placeholder="출발 공항">
+        <input id="f_to" placeholder="도착 공항">
+        <input id="f_dep" type="datetime-local" title="출발 시각">
+        <input id="f_arr" type="datetime-local" title="도착 시각">
+        <button data-act="lookFlight">운항정보 찾기</button><button class="p" data-act="addFlight">비행편 추가</button><div id="f_msg" class="sub" style="flex:1 1 100%;margin:0;font-size:13px">편명을 넣고 “운항정보 찾기”로 시각을 확인한 뒤 직접 입력해 주세요.</div>
+      </div>
+    </div>
+    <div class="card c-h">
+      <h2>숙소</h2>
+      <div class="row">
+        <input id="h_name" placeholder="숙소 이름"><button data-act="lookHotel" style="flex:0 0 auto">지도에서 찾기</button>
+        <input id="h_addr" placeholder="주소 (구글맵 링크를 붙여넣으면 위치가 반영돼요)">
+        <input id="h_url" placeholder="예약 링크 (선택)">
+      </div>
+      <div id="h_cands"></div><p id="h_info" class="sub" style="margin:8px 0 0"></p><p class="sub" style="margin:8px 0 0">숙소는 매일 경로의 출발점과 마지막 도착점으로 사용됩니다.</p>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+/* ▼▼ Firebase 콘솔에서 복사한 설정값으로 바꿔 주세요 (README 참고) ▼▼ */
+var FB_CONFIG={
+  apiKey:"YOUR_API_KEY",
+  authDomain:"YOUR_PROJECT_ID.firebaseapp.com",
+  projectId:"YOUR_PROJECT_ID",
+  storageBucket:"YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId:"YOUR_SENDER_ID",
+  appId:"YOUR_APP_ID"
+};
+/* ▲▲ 여기까지 ▲▲ */
+</script>
+<script>
+var KEY="gz-planner-v1";
+var S={start:"",end:"",flights:[],hotel:{name:"",addr:"",url:""},days:{},sel:"",mode:"transit",round:true};
+try{var raw=localStorage.getItem(KEY);if(raw)S=Object.assign(S,JSON.parse(raw));}catch(e){}
+var $=function(i){return document.getElementById(i)};
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){alert("저장 공간이 가득 찼어요. 사진을 줄이거나 삭제해 주세요.")}}
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function uid(){return Math.random().toString(36).slice(2,9)}
+function pd(s){var p=s.split("-");return new Date(+p[0],p[1]-1,+p[2])}
+function fmt(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function dayList(){var out=[];if(!S.start||!S.end)return out;var a=pd(S.start),b=pd(S.end);for(var d=a,n=0;d<=b&&n<31;d=new Date(d.getFullYear(),d.getMonth(),d.getDate()+1),n++)out.push(fmt(d));return out}
+var WD=["일","월","화","수","목","금","토"];
+function items(){return S.days[S.sel]||(S.days[S.sel]=[])}
+
+function renderTabs(){
+  var ds=dayList();
+  if(!ds.length){$("tabs").innerHTML='<div class="empty" style="width:100%">출발일과 귀국일을 정하면 날짜별 탭이 생겨요.</div>';return}
+  if(ds.indexOf(S.sel)<0)S.sel=ds[0];
+  $("tabs").innerHTML=ds.map(function(d,i){var dt=pd(d);return '<button class="tab'+(d===S.sel?' on':'')+'" data-act="sel" data-d="'+d+'">'+(i+1)+'일차<small>'+(dt.getMonth()+1)+'/'+dt.getDate()+' ('+WD[dt.getDay()]+')</small></button>'}).join("");
+}
+function renderFlights(){
+  $("flights").innerHTML=S.flights.length?S.flights.map(function(f){
+    return '<div class="item"><div class="top"><b>'+esc(f.type)+'</b><span>'+esc(f.no)+'</span><span style="flex:1"></span><button class="g" data-act="delFlight" data-id="'+f.id+'" aria-label="삭제">삭제</button></div><div>'+esc(f.from)+' → '+esc(f.to)+'</div><div class="sub" style="margin:0">'+esc((f.dep||"").replace("T"," "))+' ~ '+esc((f.arr||"").replace("T"," "))+(f.est?' <span class="chip">시간은 참고용 · 항공사에서 확인</span>':'')+' <a target="_blank" rel="noopener" href="https://www.google.com/search?q='+encodeURIComponent(f.no+" flight status")+'">운항 정보 확인</a></div></div>'}).join(""):'<div class="empty" style="margin-bottom:10px">아직 등록한 비행편이 없어요.</div>';
+}
+function renderItems(){
+  var ds=dayList(),idx=ds.indexOf(S.sel);
+  $("dayTitle").textContent=S.sel?(idx+1)+"일차 일정":"일정";
+  var L=S.sel?items():[];
+  $("items").innerHTML=L.length?L.map(function(it,i){
+    var ph=(it.photos||[]).map(function(p,k){return '<div><img src="'+p+'" alt="첨부 사진"><button class="x" data-act="delPhoto" data-id="'+it.id+'" data-k="'+k+'" aria-label="사진 삭제">×</button></div>'}).join("");
+    return '<div class="item" data-id="'+it.id+'"><div class="top"><span class="pin">'+(i+1)+'</span><input type="time" data-f="time" value="'+esc(it.time)+'"><input data-f="name" value="'+esc(it.name)+'" placeholder="장소"></div>'+
+    '<div class="more">'+det(it)+'<textarea data-f="note" placeholder="메모">'+esc(it.note)+'</textarea><div class="row"><input data-f="link" value="'+esc(it.link)+'" placeholder="링크 붙여넣기">'+(it.link?'<a href="'+esc(it.link)+'" target="_blank" rel="noopener" style="flex:0 0 auto">링크 열기</a>':'')+'</div>'+(ph?'<div class="photos">'+ph+'</div>':'')+
+    '<div class="acts"><label class="g" style="cursor:pointer;padding:4px 8px;color:var(--acc)">사진 추가<input type="file" accept="image/*" multiple data-photo="'+it.id+'" hidden></label><button class="g" data-act="up" data-id="'+it.id+'">위로</button><button class="g" data-act="down" data-id="'+it.id+'">아래로</button><button class="g" data-act="del" data-id="'+it.id+'">삭제</button></div></div></div>'}).join(""):'<div class="empty" style="margin-bottom:10px">'+(S.sel?'이 날 갈 장소를 추가해 보세요.':'먼저 여행 날짜를 정해 주세요.')+'</div>';
+}
+function q(s){s=String(s).trim();return /광저우|guangzhou|广州|canton/i.test(s)?s:s+", Guangzhou"}
+function stops(){
+  var pts=(S.sel?items():[]).filter(function(i){return i.name.trim()}).map(function(i){return q(i.q||i.name)});
+  var h=(S.hotel.addr||S.hotel.name||"").trim();
+  var o=null;
+  if(h){o=q(h);pts.unshift(o);if(rt()&&pts.length>1)pts.push(o)}
+  return pts;
+}
+function renderMap(){
+  var pts=stops();
+  $("chips").innerHTML=pts.map(function(p,i){return '<span class="chip">'+(i+1)+'. '+esc(p.replace(", Guangzhou",""))+'</span>'}).join("");
+  var u;
+  if(!pts.length){$("map").removeAttribute("src");return}
+  if(pts.length===1)u="https://maps.google.com/maps?output=embed&q="+encodeURIComponent(pts[0]);
+  else{var dir={transit:"r",walking:"w",driving:"d"}[S.mode];u="https://maps.google.com/maps?output=embed&dirflg="+dir+"&saddr="+encodeURIComponent(pts[0])+"&daddr="+pts.slice(1).map(encodeURIComponent).join("+to:")}
+  if($("map").getAttribute("src")!==u)$("map").src=u;
+}
+function openMaps(){
+  var pts=stops();if(!pts.length)return;
+  var u;
+  if(pts.length===1)u="https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(pts[0]);
+  else{u="https://www.google.com/maps/dir/?api=1&travelmode="+S.mode+"&origin="+encodeURIComponent(pts[0])+"&destination="+encodeURIComponent(pts[pts.length-1]);var w=pts.slice(1,-1).slice(0,9);if(w.length)u+="&waypoints="+w.map(encodeURIComponent).join("%7C")}
+  window.open(u,"_blank","noopener");
+}
+function renderAll(){renderTabs();renderFlights();renderItems();renderMap()}
+
+function shrink(file,cb){
+  var r=new FileReader();
+  r.onload=function(){var im=new Image();im.onload=function(){var m=720,s=Math.min(1,m/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*s;c.height=im.height*s;c.getContext("2d").drawImage(im,0,0,c.width,c.height);cb(c.toDataURL("image/jpeg",.7))};im.src=r.result};
+  r.readAsDataURL(file);
+}
+function find(id){return items().filter(function(i){return i.id===id})[0]}
+
+document.addEventListener("click",function(e){
+  var b=e.target.closest("[data-act]");if(!b)return;
+  var a=b.dataset.act,id=b.dataset.id,L=S.sel?items():[],i;
+  if(a==="sel"){S.sel=b.dataset.d;save();renderAll()}
+  else if(a==="addItem"){
+    var n=$("n_name").value.trim();if(!n||!S.sel)return;
+    L.push({id:uid(),time:$("n_time").value,name:n,note:"",link:"",photos:[]});$("n_name").value="";$("n_time").value="";save();renderItems();renderMap();
+  }
+  else if(a==="del"){S.days[S.sel]=L.filter(function(x){return x.id!==id});save();renderItems();renderMap()}
+  else if(a==="up"||a==="down"){i=L.findIndex(function(x){return x.id===id});var j=a==="up"?i-1:i+1;if(j<0||j>=L.length)return;var t=L[i];L[i]=L[j];L[j]=t;save();renderItems();renderMap()}
+  else if(a==="delPhoto"){find(id).photos.splice(+b.dataset.k,1);save();renderItems()}
+  else if(a==="addFlight"){
+    var f={id:uid(),type:$("f_type").value,no:$("f_no").value.trim(),from:$("f_from").value.trim(),to:$("f_to").value.trim(),dep:$("f_dep").value,arr:$("f_arr").value,est:FEST};FEST=false;
+    if(!f.no&&!f.from&&!f.to)return;S.flights.push(f);["f_no","f_from","f_to","f_dep","f_arr"].forEach(function(k){$(k).value=""});save();renderFlights();
+  }
+  else if(a==="delFlight"){S.flights=S.flights.filter(function(x){return x.id!==id});save();renderFlights()}
+  else if(a==="openMaps")openMaps();
+});
+document.addEventListener("change",function(e){
+  var t=e.target;
+  if(t.dataset.f){var it=find(t.closest(".item").dataset.id);if(!it)return;it[t.dataset.f]=t.value;save();if(t.dataset.f==="name")renderMap();if(t.dataset.f==="link")renderItems();return}
+  if(t.dataset.photo){var it2=find(t.dataset.photo);Array.prototype.forEach.call(t.files,function(f){shrink(f,function(d){it2.photos=(it2.photos||[]).concat(d);save();renderItems()})});return}
+  if(t.id==="start"||t.id==="end"){S[t.id]=t.value;if(S.start&&S.end&&S.end<S.start)S.end=S.start,$("end").value=S.end;save();renderAll()}
+  else if(t.id==="mode"){S.mode=t.value;save();renderMap()}
+  else if(t.id==="roundtrip"){S.nr=S.nr||{};S.nr[S.sel]=!t.checked;save();renderMap()}
+  else if(/^h_/.test(t.id)){S.hotel={name:$("h_name").value,addr:$("h_addr").value,url:$("h_url").value,info:S.hotel.info};save();renderMap()}
+});
+var SAMPLE=null,CAND=[],FEST=false;
+if(window.claude&&claude.use)claude.use("sample").then(function(s){SAMPLE=s}).catch(function(){});
+async function ask(p,b){
+  if(!SAMPLE){alert("이 환경에서는 자동 검색을 쓸 수 없어요. 직접 입력해 주세요.");return null}
+  var o=b.textContent;b.textContent="검색 중…";b.disabled=true;
+  try{return await SAMPLE.json(p)}
+  catch(e){alert(e&&e.code==="not_granted"?"자동 검색 권한을 허용해야 쓸 수 있어요.":"검색에 실패했어요. 잠시 후 다시 시도해 주세요.");return null}
+  finally{b.textContent=o;b.disabled=false}
+}
+function det(it){var p=[];if(it.addr)p.push("📍 "+esc(it.addr));if(it.hours)p.push("🕒 "+esc(it.hours));if(it.desc)p.push(esc(it.desc));return p.length?'<div class="sub" style="margin:0;font-size:13px">'+p.join("<br>")+'</div>':''}
+function showCands(id,list,kind){
+  CAND=Array.isArray(list)?list.slice(0,4):[];
+  $(id).innerHTML=CAND.length?CAND.map(function(c,i){return '<div class="item"><b>'+esc(c.name)+'</b>'+det(c)+'<div class="acts"><button class="p" data-act="pick" data-kind="'+kind+'" data-i="'+i+'">'+(kind==="item"?"일정에 추가":"숙소로 선택")+'</button></div></div>'}).join("")+'<p class="sub" style="font-size:12px">AI가 알려 주는 정보라 주소와 운영시간은 지도에서 한 번 더 확인하세요.</p>':'<div class="empty" style="margin-bottom:10px">검색 결과가 없어요. 이름을 바꿔 보거나 직접 추가해 주세요.</div>';
+}
+var FMT='각 항목은 {"name":"한국어 이름","q":"구글맵 검색용 중국어 이름과 영어 이름","addr":"주소(중국어 또는 영어)","desc":"한 줄 소개(한국어)","hours":"운영시간, 모르면 빈 문자열"} 형식. 확실하지 않은 정보는 지어내지 말고 빈 문자열로 둘 것. 설명 없이 JSON 배열만 출력.';
+async function lookItem(b){var n=$("n_name").value.trim();if(!n)return;if(!S.sel){alert("먼저 여행 날짜를 정해 주세요.");return}
+  var r=await ask('중국 광저우 여행 장소 검색. 검색어: "'+n+'". 광저우에 있는 실제 장소 최대 4개를 찾아라. '+FMT,b);if(r)showCands("n_cands",r,"item")}
+async function lookHotel(b){var n=$("h_name").value.trim();if(!n)return;
+  var r=await ask('중국 광저우 숙소 검색. 검색어: "'+n+'". 광저우의 실제 호텔과 숙소 최대 4개를 찾아라. '+FMT.replace("운영시간, 모르면 빈 문자열","빈 문자열").replace("한 줄 소개(한국어)","가까운 지하철역이나 지역(한국어)"),b);if(r)showCands("h_cands",r,"hotel")}
+function addDays(s,n){var d=pd(s);return fmt(new Date(d.getFullYear(),d.getMonth(),d.getDate()+n))}
+async function lookFlight(b){var no=$("f_no").value.trim();if(!no)return;
+  var date=$("f_type").value==="가는 편"?S.start:S.end;
+  var r=await ask('항공편 '+no+'의 정기 스케줄을 알려라. 광저우(CAN) 관련 노선이다. JSON 객체 하나만 출력: {"airline":"항공사 한국어 이름","fromName":"출발 공항 이름(한국어)","fromCode":"IATA 코드","toName":"도착 공항 이름(한국어)","toCode":"IATA 코드","depTime":"HH:MM 현지시각","arrTime":"HH:MM 현지시각","arrDayOffset":0}. 모르는 값은 빈 문자열이나 0으로 둘 것. 지어내지 말 것.',b);
+  if(!r||Array.isArray(r))return;
+  $("f_no").value=no.toUpperCase()+(r.airline?" ("+r.airline+")":"");
+  if(r.fromName)$("f_from").value=r.fromName+(r.fromCode?" ("+r.fromCode+")":"");
+  if(r.toName)$("f_to").value=r.toName+(r.toCode?" ("+r.toCode+")":"");
+  var msg="자동 입력했어요. 시각은 정기 스케줄 기준 참고용이니 예약 확인서와 꼭 맞춰 보세요.";
+  if(date&&/^\d\d:\d\d$/.test(r.depTime||"")){$("f_dep").value=date+"T"+r.depTime;if(/^\d\d:\d\d$/.test(r.arrTime||""))$("f_arr").value=addDays(date,+r.arrDayOffset||0)+"T"+r.arrTime;FEST=true}
+  else if(!date)msg="공항은 채웠어요. 여행 날짜를 정하면 시각도 채울 수 있어요.";
+  $("f_msg").textContent=msg}
+document.addEventListener("click",function(e){
+  var b=e.target.closest("[data-act]");if(!b)return;var a=b.dataset.act;
+  if(a==="lookItem")lookItem(b);else if(a==="lookHotel")lookHotel(b);else if(a==="lookFlight")lookFlight(b);
+  else if(a==="pick"){var c=CAND[+b.dataset.i];if(!c)return;
+    if(b.dataset.kind==="item"){items().push({id:uid(),time:$("n_time").value,name:c.name,q:c.q||c.name,addr:c.addr||"",desc:c.desc||"",hours:c.hours||"",note:"",link:"",photos:[]});$("n_name").value="";$("n_time").value="";$("n_cands").innerHTML="";save();renderItems();renderMap()}
+    else{S.hotel={name:c.name,addr:c.q||c.addr||c.name,url:S.hotel.url,info:[c.addr,c.desc].filter(Boolean).join(" · ")};$("h_name").value=S.hotel.name;$("h_addr").value=S.hotel.addr;$("h_info").textContent=S.hotel.info;$("h_cands").innerHTML="";save();renderMap()}}
+});
+FMT=FMT.replace('"hours"','"lat":WGS84 위도 숫자,"lng":경도 숫자,"hours"');
+function ft(s){return s?s.slice(11,16):"--:--"}
+function fd(s){if(!s)return"";var d=pd(s.slice(0,10));return (d.getMonth()+1)+"월 "+d.getDate()+"일 ("+WD[d.getDay()]+")"}
+function cd(s){var m=/\(([A-Z]{3})\)/.exec(s||"");return m?m[1]:esc((s||"").slice(0,8))}
+function dayFl(){var el=$("dayFlights");if(!el)return;el.innerHTML=S.flights.filter(function(f){return (f.dep||"").slice(0,10)===S.sel||(f.arr||"").slice(0,10)===S.sel}).map(function(f){return '<div class="item" style="border-color:var(--hi)"><b>✈ '+esc(f.no)+'</b> &nbsp;<span style="font:700 20px \'Gowun Batang\',serif">'+ft(f.dep)+' '+cd(f.from)+' → '+ft(f.arr)+' '+cd(f.to)+'</span></div>'}).join("")}
+function renderFlights(){
+  var L=S.flights.slice().sort(function(a,b){return (a.dep||"")<(b.dep||"")?-1:1});
+  var big='font:700 32px/1 "Gowun Batang",Georgia,serif';
+  $("flights").innerHTML=L.length?L.map(function(f){
+    return '<div class="item" style="padding:14px"><div class="top"><b>'+esc(f.type)+'</b><span>'+esc(f.no)+'</span><span style="flex:1"></span><button class="g" data-act="delFlight" data-id="'+f.id+'" aria-label="삭제">삭제</button></div>'+
+    '<div style="display:flex;align-items:center;gap:10px;margin:10px 0"><div><div style=\''+big+'\'>'+ft(f.dep)+'</div><div><b>'+cd(f.from)+'</b></div><div class="sub" style="margin:0;font-size:12px">'+fd(f.dep)+'</div></div><div style="flex:1;text-align:center;color:var(--mute)">✈ ────</div><div style="text-align:right"><div style=\''+big+'\'>'+ft(f.arr)+'</div><div><b>'+cd(f.to)+'</b></div><div class="sub" style="margin:0;font-size:12px">'+fd(f.arr)+'</div></div></div>'+
+    '<div class="sub" style="margin:0;font-size:13px">'+esc(f.from)+' → '+esc(f.to)+'</div>'+(f.est?'<span class="chip">시간은 참고용 · 항공사에서 확인</span>':'')+' <a target="_blank" rel="noopener" href="https://www.google.com/search?q='+encodeURIComponent(f.no+" flight status")+'">운항 정보 확인</a></div>'}).join(""):'<div class="empty" style="margin-bottom:10px">아직 등록한 비행편이 없어요.</div>';
+  dayFl();
+}
+function hav(a,b){var R=6371,r=Math.PI/180,dl=(b.lat-a.lat)*r,dn=(b.lng-a.lng)*r,x=Math.sin(dl/2)*Math.sin(dl/2)+Math.cos(a.lat*r)*Math.cos(b.lat*r)*Math.sin(dn/2)*Math.sin(dn/2);return 2*R*Math.asin(Math.sqrt(x))}
+function routePts(){
+  var P=(S.sel?items():[]).filter(function(i){return i.name.trim()}).map(function(i,k){return {n:i.name,lat:i.lat,lng:i.lng,k:k+1}});
+  var h=S.hotel;if(h.name||h.addr){var H={n:h.name||"숙소",lat:h.lat,lng:h.lng,k:"숙"};P.unshift(H);if(rt()&&P.length>1)P.push(H)}
+  return P}
+function drawSvg(){
+  dayFl();
+  var P=routePts(),V=P.filter(function(p){return typeof p.lat==="number"&&typeof p.lng==="number"}),el=$("svgmap"),lg=$("legs");
+  if(V.length<2){el.innerHTML='<div class="empty" style="margin-bottom:10px">'+(P.length?'장소의 링크 칸에 구글맵 링크를 붙여넣으면 지도 위치가 반영돼 경로 그림이 그려져요.':'장소를 추가하면 경로 그림이 여기에 나와요.')+'</div>';lg.innerHTML="";return}
+  var W=600,H=340,pad=56,la=V.map(function(p){return p.lat}),ln=V.map(function(p){return p.lng}),mla=Math.min.apply(0,la),Mla=Math.max.apply(0,la),mln=Math.min.apply(0,ln),Mln=Math.max.apply(0,ln),c=Math.cos((mla+Mla)/2*Math.PI/180),w=Math.max((Mln-mln)*c,.004),h=Math.max(Mla-mla,.004),s=Math.min((W-2*pad)/w,(H-2*pad)/h),ox=(W-w*s)/2,oy=(H-h*s)/2;
+  function X(p){return ox+(p.lng-mln)*c*s}function Y(p){return H-oy-(p.lat-mla)*s}
+  var g='',i;for(i=1;i<4;i++){g+='<line x1="'+W/4*i+'" y1="0" x2="'+W/4*i+'" y2="'+H+'" stroke="var(--line)"/>'}for(i=1;i<3;i++){g+='<line x1="0" y1="'+H/3*i+'" x2="'+W+'" y2="'+H/3*i+'" stroke="var(--line)"/>'}
+  var ln2='',pins='',seen={};
+  for(i=0;i<V.length-1;i++){var a=V[i],b=V[i+1],mx=(X(a)+X(b))/2,my=(Y(a)+Y(b))/2;ln2+='<line x1="'+X(a)+'" y1="'+Y(a)+'" x2="'+X(b)+'" y2="'+Y(b)+'" stroke="var(--acc)" stroke-width="3" stroke-linecap="round" stroke-dasharray="2 7"/><circle cx="'+mx+'" cy="'+my+'" r="3.5" fill="var(--acc)"/>'}
+  V.forEach(function(p){var key=p.lat+","+p.lng;if(seen[key])return;seen[key]=1;var x=X(p),y=Y(p),home=p.k==="숙";pins+=(home?'<rect x="'+(x-12)+'" y="'+(y-12)+'" width="24" height="24" rx="6" fill="var(--ink)"/>':'<circle cx="'+x+'" cy="'+y+'" r="13" fill="var(--hi)"/>')+'<text x="'+x+'" y="'+(y+4)+'" text-anchor="middle" font-size="12" font-weight="700" fill="'+(home?'var(--bg)':'#2b2100')+'">'+p.k+'</text><text x="'+x+'" y="'+(y+28)+'" text-anchor="middle" font-size="12" fill="var(--ink)" stroke="var(--card)" stroke-width="3" paint-order="stroke">'+esc(p.n.length>12?p.n.slice(0,11)+"…":p.n)+'</text>'});
+  el.innerHTML='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="오늘의 이동 경로 그림" style="width:100%;height:auto;display:block;background:var(--inp);border:1px solid var(--line);border-radius:12px;margin-bottom:8px">'+g+ln2+pins+'<text x="10" y="'+(H-10)+'" font-size="11" fill="var(--mute)">북쪽이 위 · 실제 비율의 약식 경로도</text></svg>';
+  var md={transit:"bus",walking:"walk",driving:"car"}[S.mode],tot=0;
+  lg.innerHTML=V.slice(0,-1).map(function(a,i){var b=V[i+1],d=hav(a,b);tot+=d;
+    var am='https://uri.amap.com/navigation?from='+a.lng+','+a.lat+','+encodeURIComponent(a.n)+'&to='+b.lng+','+b.lat+','+encodeURIComponent(b.n)+'&mode='+md+'&coordinate=wgs84&callnative=0',
+        gg='https://www.google.com/maps/dir/?api=1&travelmode='+S.mode+'&origin='+a.lat+','+a.lng+'&destination='+b.lat+','+b.lng;
+    return '<div class="row" style="margin-bottom:6px;font-size:13px"><span style="flex:1 1 180px"><b>'+a.k+' → '+b.k+'</b> '+esc(a.n)+' → '+esc(b.n)+' · 직선 '+d.toFixed(1)+'km</span><a style="flex:0 0 auto" target="_blank" rel="noopener" href="'+am+'">고덕지도</a><a style="flex:0 0 auto" target="_blank" rel="noopener" href="'+gg+'">구글맵</a></div>'}).join("")+'<p class="sub" style="font-size:12px">총 직선거리 약 '+tot.toFixed(1)+'km · 실제 이동 거리와 시간은 구간별 길찾기에서 확인하세요.</p>';
+}
+var _rm=renderMap;renderMap=function(){_rm();drawSvg()};
+async function fillCoords(b){
+  var need=[],L=S.sel?items():[];
+  L.forEach(function(it,i){if(typeof it.lat!=="number"&&it.name.trim())need.push({i:i,name:it.q||it.name})});
+  if((S.hotel.name||S.hotel.addr)&&typeof S.hotel.lat!=="number")need.push({i:-1,name:S.hotel.addr||S.hotel.name});
+  if(!need.length){alert("이미 모든 장소에 좌표가 있어요.");return}
+  var r=await ask('중국 광저우의 다음 장소들의 대략적인 WGS84 좌표를 알려라. 입력: '+JSON.stringify(need)+'. [{"i":입력과 같은 번호,"lat":위도 숫자,"lng":경도 숫자}] 형식의 JSON 배열만 출력. 모르면 해당 항목은 빼라. 지어내지 말 것.',b);
+  if(!Array.isArray(r))return;
+  r.forEach(function(x){if(typeof x.lat!=="number"||typeof x.lng!=="number")return;var t=x.i===-1?S.hotel:L[x.i];if(t){t.lat=x.lat;t.lng=x.lng}});
+  save();renderMap()}
+document.addEventListener("click",function(e){
+  var b=e.target.closest("[data-act]");if(!b)return;var a=b.dataset.act;
+  if(a==="fillCoords")fillCoords(b);
+  else if(a==="pick"){var c=CAND[+b.dataset.i];if(!c||typeof c.lat!=="number"||typeof c.lng!=="number")return;
+    var t=b.dataset.kind==="item"?items()[items().length-1]:S.hotel;if(t){t.lat=c.lat;t.lng=c.lng;save();renderMap()}}
+});
+function rt(){return S.round&&!(S.nr&&S.nr[S.sel])}
+var _rm2=renderMap;renderMap=function(){$("roundtrip").checked=rt();_rm2()};
+var B="Beijing Road Pedestrian Street 北京路步行街",TW="Canton Tower 广州塔",FT="Futian CBD Shenzhen 福田中心区",SB="Shenzhen Bay Park 深圳湾公园",GS="Guangzhou South Railway Station 广州南站",AP="Guangzhou Baiyun International Airport 广州白云国际机场";
+var SEED=[
+[["12:00","점도덕 (딸섬)","点都德 Dian Dou De Guangzhou","광저우 대표 딸섬 체인. 숙소에서 가까운 지점을 고르세요.",23.1250,113.2695,""],
+ ["15:00","석실성심대성당","Sacred Heart Cathedral Guangzhou 石室圣心大教堂","고딥 양식의 성당",23.1114,113.2646,"도착·체크인 후 이동"],
+ ["16:30","베이징루 보행자거리",B,"쇼핑과 길거리 음식 거리",23.1247,113.2699,""],
+ ["18:30","하이디라오","Haidilao Hot Pot Guangzhou 海底捞","훠궈. 지점은 가까운 곳으로 고르세요.",23.1235,113.2680,"저녁"],
+ ["20:00","대불사","Guangzhou Great Buddha Temple 大佛寺","베이징루 인근 사찰",23.1262,113.2692,""],
+ ["21:00","베이징루 야경 산책",B,"야경 산책",23.1247,113.2699,""]],
+[["08:30","은기창펀","银记肠粉 Yinji Changfen Guangzhou","광저우식 창펀(쌀국수롤) 아침",23.1150,113.2440,"지점 확인"],
+ ["10:00","진씨서원","Chen Clan Ancestral Hall 陈家祀","영남 건축의 대표 명소",23.1265,113.2413,""],
+ ["11:30","영경방","Yongqingfang 永庆坊","옛 거리 산책",23.1137,113.2437,""],
+ ["12:30","타오타오쥐 (점심)","陶陶居 Tao Tao Ju Guangzhou","광저우 전통 딸섬 찻집",23.1135,113.2452,""],
+ ["14:30","사면도","Shamian Island 沙面岛","유럽풍 건축의 섬",23.1087,113.2437,""],
+ ["16:30","광저우타워 전망대",TW,"광저우 랜드마크 전망",23.1065,113.3245,""],
+ ["18:30","타워 인근 식당 (저녁)",TW,"타워 근처에서 식당 선택",23.1080,113.3250,""],
+ ["20:00","대관람차","Guangzhou Eye 广州之眼","야경 관람차",23.1055,113.3238,""],
+ ["21:00","주강 야간 크루즈","Pearl River Night Cruise 珠江夜游","주강 야경 크루즈",23.1030,113.3200,"탑승장은 예약 시 확인"]],
+[["08:30","호텔 주변 아침",B,"카페에서 아침",23.1247,113.2699,""],
+ ["09:30","광저우남역",GS,"고속철 탑승",22.9890,113.2690,"선전북역행 고속철 예매 필요"],
+ ["10:30","선전북역","Shenzhen North Railway Station 深圳北站","도착",22.6090,114.0290,""],
+ ["11:30","푸텐 중심구",FT,"선전 도심 산책",22.5360,114.0560,""],
+ ["12:30","푸텐 인근 식당 (점심)",FT,"점심 식사",22.5380,114.0580,""],
+ ["14:30","연화산공원","Lianhuashan Park Shenzhen 莲花山公园","전망 좋은 도심 공원",22.5545,114.0585,""],
+ ["16:00","중심구 카페",FT,"카페 휴식",22.5370,114.0560,""],
+ ["18:00","선전만공원 인근 저녁",SB,"저녁 식사",22.5090,113.9560,""],
+ ["20:00","선전만공원 산책",SB,"해안 산책",22.5090,113.9560,""],
+ ["21:30","광저우남역 (복귀)",GS,"고속철로 복귀 후 휴식",22.9890,113.2690,"막차 시간 확인"]],
+[["08:30","호텔 주변 아침",B,"카페에서 아침",23.1247,113.2699,""],
+ ["10:00","베이징루 산책",B,"쇼핑 후 호텔 체크아웃",23.1247,113.2699,"호텔 체크아웃"],
+ ["12:30","바이윌공항 내 식당 (점심)",AP,"공항 내 식당",23.3924,113.2988,""],
+ ["14:30","공항 이동 및 귀국",AP,"17:00 비행기. 출국 수속 시간을 넓넓히",23.3924,113.2988,"17:00 출발"]]
+];
+function applySeed(){
+  var ds=dayList();if(!ds.length)return;
+  ds.slice(0,4).forEach(function(d,i){var L=S.days[d]||(S.days[d]=[]);SEED[i].forEach(function(x){if(L.some(function(y){return y.name===x[1]}))return;L.push({id:uid(),time:x[0],name:x[1],q:x[2],addr:"",desc:x[3],hours:"",note:x[6],link:"",photos:[],lat:x[4],lng:x[5]})})});
+  if(!(S.hotel.name||S.hotel.addr)){S.hotel={name:"베이징루 숙소",addr:"Beijing Road Pedestrian Street, Guangzhou",url:"",info:"베이징루 인근 · 숙소 이름을 실제 이름으로 바꿔 주세요",lat:23.1247,lng:113.2699};$("h_name").value=S.hotel.name;$("h_addr").value=S.hotel.addr;$("h_info").textContent=S.hotel.info}
+  S.nr=S.nr||{};if(ds[3])S.nr[ds[3]]=true;S.seeded=true;save()}
+var _ra=renderAll;renderAll=function(){if(!S.seeded&&dayList().length)applySeed();_ra()};
+function applyFlights(){
+  if(S.fl1)return;
+  if(!S.start&&!S.end){S.start="2026-12-16";S.end="2026-12-19";$("start").value=S.start;$("end").value=S.end}
+  [{no:"CZ340",type:"가는 편",label:"CZ340 (중국남방항공)",from:"인천국제공항 T1 (ICN)",to:"광저우 바이윌국제공항 T2 (CAN)",dep:"2026-12-16T09:10",arr:"2026-12-16T12:10"},
+   {no:"CZ339",type:"오는 편",label:"CZ339 (중국남방항공)",from:"광저우 바이윌국제공항 (CAN)",to:"인천국제공항 T1 (ICN)",dep:"2026-12-19T17:30",arr:"2026-12-19T21:50"}].forEach(function(x){
+    var f=S.flights.filter(function(y){return new RegExp(x.no,"i").test(y.no)})[0];
+    if(!f){S.flights.push({id:uid(),type:x.type,no:x.label,from:x.from,to:x.to,dep:x.dep,arr:x.arr,est:true})}
+    else if(!f.dep){f.dep=x.dep;f.arr=x.arr;f.from=f.from||x.from;f.to=f.to||x.to;f.est=true}
+  });
+  Object.keys(S.days).forEach(function(d){S.days[d].forEach(function(it){if(it.note==="17:00 출발"){it.note="17:30 출발 (CZ339, 항공사에서 한 번 더 확인)";it.desc="17:30 비행기. 출국 수속 시간을 넓넓히"}})});
+  S.fl1=true;save()}
+var _rb=renderAll;renderAll=function(){applyFlights();_rb()};
+var OPEN={},PH={},DB=null,UD=null,APPLY=false,SYNC=false,TMR=null;
+function msg(t){$("syncMsg").textContent=t}
+function renderItems(){
+  var ds=dayList(),idx=ds.indexOf(S.sel);
+  $("dayTitle").textContent=S.sel?(idx+1)+"일차 일정":"일정";
+  var L=S.sel?items():[];
+  $("items").innerHTML=L.length?L.map(function(it,i){
+    var o=!!OPEN[it.id],ph=it.photos||[],ic=(it.note?" 📝":"")+(it.link?" 🔗":"")+(ph.length?" 🖼":"");
+    var h='<div class="item" data-id="'+it.id+'"><div class="top" role="button" tabindex="0" aria-expanded="'+o+'" style="cursor:pointer" data-act="tog" data-id="'+it.id+'"><span class="pin">'+(i+1)+'</span><span style="flex:0 0 44px;color:var(--mute);font-size:13px">'+esc(it.time)+'</span><b style="flex:1;min-width:0;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(it.name)+'<span style="font-weight:400">'+ic+'</span></b><span aria-hidden="true" style="color:var(--mute)">'+(o?"▴":"▾")+'</span></div>';
+    if(o){h+='<div class="more">'+det(it)+'<div class="row"><input type="time" data-f="time" value="'+esc(it.time)+'" style="flex:0 0 108px"><input data-f="name" value="'+esc(it.name)+'" placeholder="장소"></div><textarea data-f="note" placeholder="메모">'+esc(it.note)+'</textarea><div class="row"><input data-f="link" value="'+esc(it.link)+'" placeholder="링크 붙여넣기">'+(it.link?'<a href="'+esc(it.link)+'" target="_blank" rel="noopener" style="flex:0 0 auto">링크 열기</a>':'')+'</div>'+
+      (ph.length?'<div class="photos">'+ph.map(function(p,k){var pid=String(p).slice(0,2)==="p:"?String(p).slice(2):"";return '<div><img '+(pid?'data-pid="'+pid+'" src="'+(PH[pid]||"")+'"':'src="'+p+'"')+' alt="첨부 사진"><button class="x" data-act="delPhoto" data-id="'+it.id+'" data-k="'+k+'" aria-label="사진 삭제">×</button></div>'}).join("")+'</div>':'')+
+      '<div class="acts"><label class="g" style="cursor:pointer;padding:4px 8px;color:var(--acc)">사진 추가<input type="file" accept="image/*" multiple data-photo="'+it.id+'" hidden></label><button class="g" data-act="up" data-id="'+it.id+'">위로</button><button class="g" data-act="down" data-id="'+it.id+'">아래로</button><button class="g" data-act="del" data-id="'+it.id+'">삭제</button></div></div>'}
+    return h+'</div>'}).join(""):'<div class="empty" style="margin-bottom:10px">'+(S.sel?'이 날 갈 장소를 추가해 보세요.':'먼저 여행 날짜를 정해 주세요.')+'</div>';
+  loadPhotos();
+}
+function loadPhotos(){if(!DB)return;document.querySelectorAll("img[data-pid]").forEach(function(im){var id=im.dataset.pid;if(PH[id]){im.src=PH[id];return}DB.doc("photos/"+id).get().then(function(s){if(s.exists){PH[id]=s.data().d;document.querySelectorAll('img[data-pid="'+id+'"]').forEach(function(x){x.src=PH[id]})}}).catch(function(){})})}
+document.addEventListener("click",function(e){var b=e.target.closest('[data-act="tog"]');if(!b)return;OPEN[b.dataset.id]=!OPEN[b.dataset.id];renderItems()});
+document.addEventListener("keydown",function(e){var b=e.target.closest&&e.target.closest('[data-act="tog"]');if(b&&b===e.target&&(e.key==="Enter"||e.key===" ")){e.preventDefault();b.click()}});
+document.addEventListener("change",function(e){var t=e.target;if(t.dataset&&(t.dataset.f==="name"||t.dataset.f==="time"))renderItems()});
+/* ---- 공유(실시간 동기화) ---- */
+var _sh=shrink;shrink=function(f,cb){_sh(f,function(d){if(!DB||!SYNC){cb(d);return}var id=uid()+uid();DB.doc("photos/"+id).set({d:d}).then(function(){PH[id]=d;cb("p:"+id)}).catch(function(){alert("사진 저장에 실패했어요. Firebase 규칙과 설정을 확인해 주세요.")})})};
+function clean(o){return JSON.parse(JSON.stringify(o))}
+function warn(){msg("⚠️ 저장하지 못했어요. Firebase 규칙과 설정을 확인해 주세요.")}
+function push(){if(!DB||!SYNC)return;DB.doc("trip/meta").set(clean({start:S.start,end:S.end,hotel:S.hotel,flights:S.flights,nr:S.nr||{},mode:S.mode,round:S.round})).catch(warn);if(S.sel&&S.days[S.sel])DB.doc("days/"+S.sel).set({items:clean(S.days[S.sel])}).catch(warn)}
+var _sv=save;save=function(){_sv();if(DB&&SYNC&&!APPLY){clearTimeout(TMR);TMR=setTimeout(push,400)}};
+async function uploadAll(){
+  try{SYNC=true;msg("일정을 공유 저장소로 옮기는 중…");
+    for(var d in S.days){var L=S.days[d];for(var a=0;a<L.length;a++){var ph=L[a].photos||[];for(var k=0;k<ph.length;k++){if(String(ph[k]).slice(0,5)==="data:"){var id=uid()+uid();await DB.doc("photos/"+id).set({d:ph[k]});PH[id]=ph[k];ph[k]="p:"+id}}}await DB.doc("days/"+d).set({items:clean(L)})}
+    _sv();push();
+  }catch(e){SYNC=false;warn()}
+}
+async function initSync(){
+  if(!window.firebase||/YOUR_/.test(FB_CONFIG.apiKey)){msg("Firebase 설정 전 · 이 브라우저에만 저장 중");return}
+  try{firebase.initializeApp(FB_CONFIG);DB=firebase.firestore();UD={isOwner:function(){return true}}}catch(e){DB=null}
+  if(!DB){msg("공유 저장소에 연결하지 못했어요 · 이 브라우저에만 저장 중");return}
+  var first=true,fail=function(){msg("이 브라우저에만 저장 중 · 공유 기능을 쓸 수 없어요");SYNC=false};
+  DB.doc("trip/meta").onSnapshot(function(s){
+    if(s.exists){var d=s.data();APPLY=true;
+      ["start","end","hotel","flights","nr","mode","round"].forEach(function(k){if(d[k]!==undefined)S[k]=d[k]});
+      S.seeded=true;S.fl1=true;SYNC=true;
+      $("start").value=S.start||"";$("end").value=S.end||"";$("mode").value=S.mode;$("h_name").value=S.hotel.name||"";$("h_addr").value=S.hotel.addr||"";$("h_url").value=S.hotel.url||"";$("h_info").textContent=S.hotel.info||"";
+      renderAll();APPLY=false;msg("🟢 공유 중 · 같은 링크를 열은 사람과 일정이 실시간으로 동기화돼요");
+    }else if(first&&UD&&UD.isOwner()){uploadAll().then(function(){msg("🟢 공유 시작 · 이제 같은 링크를 열은 사람과 일정이 동기화돼요")})}
+    else if(first){msg("아직 공유된 일정이 없어요. 만든 사람이 한 번 열면 시작돼요")}
+    first=false;
+  },fail);
+  DB.collection("days").onSnapshot(function(q){
+    APPLY=true;q.docs.forEach(function(d){var x=d.data();if(x&&Array.isArray(x.items))S.days[d.id]=x.items});
+    if(q.size){renderAll()}APPLY=false;
+  },fail);
+}
+initSync();
+$("n_name").addEventListener("keydown",function(e){if(e.key==="Enter")document.querySelector('[data-act="addItem"]').click()});
+
+$("start").value=S.start;$("end").value=S.end;$("mode").value=S.mode;$("roundtrip").checked=S.round;
+$("h_name").value=S.hotel.name;$("h_info").textContent=S.hotel.info||"";$("h_addr").value=S.hotel.addr;$("h_url").value=S.hotel.url;
+renderAll();
+
+/* ---- GitHub Pages 판: AI 검색 대신 지도 링크와 좌표 붙여넣기 ---- */
+lookItem=function(){var n=$("n_name").value.trim();if(!n)return;window.open("https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(q(n)),"_blank","noopener")};
+lookHotel=function(){var n=$("h_name").value.trim();if(!n)return;window.open("https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(q(n)),"_blank","noopener")};
+lookFlight=function(){var n=$("f_no").value.trim();if(!n)return;window.open("https://www.google.com/search?q="+encodeURIComponent(n+" flight status"),"_blank","noopener")};
+function coord(u){var m=/@(-?\d+\.\d+),(-?\d+\.\d+)/.exec(u)||/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/.exec(u);return m?{lat:+m[1],lng:+m[2]}:null}
+document.addEventListener("change",function(e){var t=e.target,c;
+  if(t.dataset&&t.dataset.f==="link"){c=coord(t.value);var it=find(t.closest(".item").dataset.id);if(c&&it){it.lat=c.lat;it.lng=c.lng;save();renderMap()}}
+  else if(t.id==="h_addr"){c=coord(t.value);if(c){S.hotel.lat=c.lat;S.hotel.lng=c.lng;S.hotel.addr=(S.hotel.name||"")+" Guangzhou";$("h_addr").value=S.hotel.addr;save();renderMap()}}
+});
+</script>
+</body>
+</html>
